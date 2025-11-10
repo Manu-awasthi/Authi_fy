@@ -23,10 +23,20 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "Loaded ✅" : "Missing ❌");
-console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "Loaded ✅" : "Missing ❌");
+console.log("🌍 FRONTEND_URL:", process.env.FRONTEND_URL);
+console.log("🔑 GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "Loaded" : "Missing");
+console.log("🐙 GITHUB_CLIENT_ID:", process.env.GITHUB_CLIENT_ID ? "Loaded" : "Missing");
+console.log("🧩 MONGODB_URL:", process.env.MONGODB_URL ? "Loaded" : "Missing");
+
 
 // GOOGLE STRATEGY
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("🔥 Unhandled Rejection:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("🔥 Uncaught Exception:", err.message);
+});
+
 
 passport.use(
   new GoogleStrategy(
