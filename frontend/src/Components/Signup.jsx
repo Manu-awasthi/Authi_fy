@@ -4,7 +4,7 @@ import API from "../api";
 import { motion } from "framer-motion";
 import { FaGoogle, FaGithub } from "react-icons/fa";
 
-const BACKEND_URL = "http://localhost:5000"; // Backend URL
+const BACKEND_URL = "https://authi-fy.onrender.com"; // Backend URL
 
 const Signup = () => {
   const [form, setForm] = useState({ name: "", email: "", age: "", password: "" });
