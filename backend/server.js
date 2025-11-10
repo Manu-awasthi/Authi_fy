@@ -22,12 +22,36 @@ app.use(express.json());
 app.use(cookieParser());
 
 
+
+const allowedOrigins = [
+  "https://authi-fy.vercel.app",
+  "http://localhost:5173",
+];
+
+app.use((req, res, next) => {
+  console.log("🟢 Incoming request from:", req.headers.origin);
+  next();
+});
+
 app.use(
   cors({
-    origin:process.env.FRONTEND_URL,
-    credentials: true, 
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.error("❌ Blocked by CORS:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
+
+
+app.options("*", cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 
 app.use(
   session({
