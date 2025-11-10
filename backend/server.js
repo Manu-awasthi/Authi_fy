@@ -24,7 +24,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: https://authi-fy.vercel.app/, 
+    origin:
     credentials: true, 
   })
 );
