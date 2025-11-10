@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { FaGoogle, FaGithub } from "react-icons/fa";
 import axios from "axios";
 
-const BACKEND_URL = "http://localhost:5000"; // your backend URL
+const BACKEND_URL = "https://authi-fy.onrender.com"; // your backend URL
 
 const Login = () => {
   const navigate = useNavigate();
