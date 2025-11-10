@@ -50,7 +50,7 @@ const Dashboard = () => {
   // ✅ Logout
   const handleLogout = async () => {
     try {
-      await API.get("http://localhost:5000/auth/logout", { withCredentials: true });
+      await API.get("https://authi-fy.onrender.com/auth/logout", { withCredentials: true });
       navigate("/");
     } catch (err) {
       console.error("Logout failed", err);
