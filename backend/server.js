@@ -24,20 +24,22 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:5173", 
+    origin: process.env.FRONTEND_URL, 
     credentials: true, 
   })
 );
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "secret",
+    secret: process.env.SESSION_SECRET ,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, 
-      sameSite: "none", 
-      maxAge: 24 * 60 * 60 * 1000, 
+       cookie: {
+      secure: process.env.NODE_ENV === "production", // true only in production (HTTPS)
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
