@@ -3,7 +3,7 @@ import passport from "passport";
 import jwt from "jsonwebtoken";
 
 const router = express.Router();
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URL = process.env.FRONTEND_URL ;
 
 
 // GOOGLE AUTH
