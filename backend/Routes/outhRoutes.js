@@ -19,7 +19,7 @@ router.get(
       const isProd = process.env.NODE_ENV === "production";
 
       res.cookie("token", token, {
-        httpOnly: isProd ? true : false, 
+        httpOnly:true, 
         secure: isProd, 
         sameSite: isProd ? "strict" : "none", 
         path: "/",
@@ -49,7 +49,7 @@ router.get(
       const isProd = process.env.NODE_ENV === "production";
 
       res.cookie("token", token, {
-        httpOnly: isProd ? true : false,
+        httpOnly:true,
         secure: isProd,
         sameSite: isProd ? "strict" : "none",
         path: "/",
