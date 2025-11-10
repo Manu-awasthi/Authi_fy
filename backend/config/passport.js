@@ -23,6 +23,8 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "Loaded ✅" : "Missing ❌");
+console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "Loaded ✅" : "Missing ❌");
 
 // GOOGLE STRATEGY
 
