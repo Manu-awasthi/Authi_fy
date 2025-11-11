@@ -80,9 +80,13 @@ passport.use(
         console.log("Created new user from Google");
         done(null, newUser);
       } catch (err) {
-        console.error("Error in GoogleStrategy:", err);
-        done(err, null);
-      }
+  console.error("🔥 Error in GoogleStrategy:", err.message);
+  if (err.oauthError) {
+    console.error("🔍 Google OAuth error body:", err.oauthError.toString());
+  }
+  console.error("Full error:", err);
+  done(err, null);
+}
     }
   )
 );
