@@ -7,7 +7,7 @@ import User from "../Model/User.js";
 
 dotenv.config();
 
-// -------------------- SESSION SETUP --------------------
+// -------------------- SESSION SERIALIZATION --------------------
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
@@ -17,123 +17,145 @@ passport.deserializeUser(async (id, done) => {
     const foundUser = await User.findById(id);
     done(null, foundUser);
   } catch (err) {
+    console.error("❌ Error in deserializeUser:", err);
     done(err, null);
   }
 });
 
-// -------------------- ENV CHECKS --------------------
-console.log("🌍 FRONTEND_URL:", process.env.FRONTEND_URL);
-console.log("🔑 GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "Loaded ✅" : "Missing ❌");
-console.log("🔑 GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "Loaded ✅" : "Missing ❌");
-console.log("🐙 GITHUB_CLIENT_ID:", process.env.GITHUB_CLIENT_ID ? "Loaded ✅" : "Missing ❌");
-console.log("🧩 MONGODB_URL:", process.env.MONGODB_URL ? "Loaded ✅" : "Missing ❌");
+// -------------------- HELPER: ENV VALIDATION --------------------
+function validateEnvVars(provider) {
+  const requiredVars =
+    provider === "google"
+      ? ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"]
+      : ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"];
 
-// -------------------- ERROR HANDLERS --------------------
-process.on("unhandledRejection", (reason) => {
-  console.error("🔥 Unhandled Rejection:", reason);
-});
-process.on("uncaughtException", (err) => {
-  console.error("🔥 Uncaught Exception:", err.message);
-});
+  for (const key of requiredVars) {
+    if (!process.env[key]) {
+      console.error(`❌ Missing ${key} in environment variables`);
+      throw new Error(`Missing ${key}`);
+    }
+  }
+}
+
+// -------------------- DYNAMIC CALLBACK HANDLER --------------------
+const isProd = process.env.NODE_ENV === "production";
+const baseURL = isProd
+  ? "https://authi-fy.onrender.com"
+  : "http://localhost:5000";
 
 // -------------------- GOOGLE STRATEGY --------------------
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL || "https://authi-fy.onrender.com/auth/google/callback",
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        console.log("🚀 GOOGLE CALLBACK HIT");
-        console.log("🔗 Callback URL:", process.env.GOOGLE_CALLBACK_URL);
-        console.log("🔑 Access Token:", accessToken ? "Received ✅" : "Missing ❌");
-        console.log("👤 Google Profile ID:", profile.id);
+try {
+  validateEnvVars("google");
 
-        const email = profile.emails?.[0]?.value || `${profile.id}@noemail.authify.com`;
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL:
+          process.env.GOOGLE_CALLBACK_URL ||
+          `${baseURL}/auth/google/callback`,
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          console.log("🚀 GOOGLE CALLBACK HIT");
+          console.log("🔗 Using callback:", process.env.GOOGLE_CALLBACK_URL || `${baseURL}/auth/google/callback`);
+          console.log("👤 Google profile ID:", profile.id);
 
-        let user = await User.findOne({ googleId: profile.id });
-        if (user) {
-          console.log("✅ Found existing user by Google ID");
-          return done(null, user);
+          const email = profile.emails?.[0]?.value;
+
+          let user = await User.findOne({ googleId: profile.id });
+          if (user) {
+            console.log("✅ Found existing user by Google ID");
+            return done(null, user);
+          }
+
+          if (email) {
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+              existingUser.googleId = profile.id;
+              await existingUser.save();
+              console.log("🔗 Linked Google to existing email user");
+              return done(null, existingUser);
+            }
+          }
+
+          const newUser = await User.create({
+            googleId: profile.id,
+            name: profile.displayName || "Unnamed User",
+            email,
+          });
+
+          console.log("🆕 Created new user from Google:", newUser.email);
+          done(null, newUser);
+        } catch (err) {
+          console.error("🔥 Error in GoogleStrategy:", err.message);
+          if (err.oauthError) {
+            console.error("🔍 Google OAuth error body:", err.oauthError.toString());
+          }
+          done(err, null);
         }
-
-        // If existing email found, link accounts
-        const existingEmailUser = await User.findOne({ email });
-        if (existingEmailUser) {
-          existingEmailUser.googleId = profile.id;
-          await existingEmailUser.save();
-          console.log("🔗 Linked Google to existing email user");
-          return done(null, existingEmailUser);
-        }
-
-        // Create a new user
-        const newUser = await User.create({
-          googleId: profile.id,
-          name: profile.displayName || "Unnamed User",
-          email,
-        });
-
-        console.log("🆕 Created new user from Google:", newUser.email);
-        return done(null, newUser);
-      } catch (err) {
-        console.error("🔥 Error in GoogleStrategy:", err.message);
-        if (err.oauthError) {
-          console.error("🔍 Google OAuth error body:", err.oauthError.toString());
-        }
-        console.error("Full error:", err);
-        done(err, null);
       }
-    }
-  )
-);
+    )
+  );
+} catch (setupErr) {
+  console.error("🚨 Google Strategy Setup Failed:", setupErr.message);
+}
 
 // -------------------- GITHUB STRATEGY --------------------
-passport.use(
-  new GitHubStrategy(
-    {
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: process.env.GITHUB_CALLBACK_URL || "https://authi-fy.onrender.com/auth/github/callback",
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        console.log("🚀 GITHUB CALLBACK HIT");
-        console.log("👤 GitHub Profile ID:", profile.id);
+try {
+  validateEnvVars("github");
 
-        const email = profile.emails?.[0]?.value || `${profile.username || profile.id}@noemail.authify.com`;
+  passport.use(
+    new GitHubStrategy(
+      {
+        clientID: process.env.GITHUB_CLIENT_ID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        callbackURL:
+          process.env.GITHUB_CALLBACK_URL ||
+          `${baseURL}/auth/github/callback`,
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          console.log("🚀 GITHUB CALLBACK HIT");
+          console.log("👤 GitHub profile ID:", profile.id);
 
-        let user = await User.findOne({ githubId: profile.id });
-        if (user) {
-          console.log("✅ Found existing user by GitHub ID");
-          return done(null, user);
+          const email =
+            profile.emails?.[0]?.value ||
+            `${profile.username || profile.id}@noemail.githubuser.com`;
+
+          let user = await User.findOne({ githubId: profile.id });
+          if (user) {
+            console.log("✅ Found existing user by GitHub ID");
+            return done(null, user);
+          }
+
+          const existingUser = await User.findOne({ email });
+          if (existingUser) {
+            existingUser.githubId = profile.id;
+            await existingUser.save();
+            console.log("🔗 Linked GitHub to existing email user");
+            return done(null, existingUser);
+          }
+
+          const newUser = await User.create({
+            githubId: profile.id,
+            name: profile.displayName || profile.username || "Unnamed User",
+            email,
+          });
+
+          console.log("🆕 Created new user from GitHub:", newUser.email);
+          done(null, newUser);
+        } catch (err) {
+          console.error("🔥 Error in GitHubStrategy:", err.message);
+          if (err.oauthError) {
+            console.error("🔍 GitHub OAuth error body:", err.oauthError.toString());
+          }
+          done(err, null);
         }
-
-        const existingEmailUser = await User.findOne({ email });
-        if (existingEmailUser) {
-          existingEmailUser.githubId = profile.id;
-          await existingEmailUser.save();
-          console.log("🔗 Linked GitHub to existing email user");
-          return done(null, existingEmailUser);
-        }
-
-        const newUser = await User.create({
-          githubId: profile.id,
-          name: profile.displayName || "Unnamed User",
-          email,
-        });
-
-        console.log("🆕 Created new user from GitHub:", newUser.email);
-        return done(null, newUser);
-      } catch (err) {
-        console.error("🔥 Error in GitHubStrategy:", err.message);
-        if (err.oauthError) {
-          console.error("🔍 GitHub OAuth error body:", err.oauthError.toString());
-        }
-        console.error("Full error:", err);
-        done(err, null);
       }
-    }
-  )
-);
+    )
+  );
+} catch (setupErr) {
+  console.error("🚨 GitHub Strategy Setup Failed:", setupErr.message);
+}
