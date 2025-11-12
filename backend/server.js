@@ -24,7 +24,7 @@ app.use(cookieParser());
 
 
 const allowedOrigins = [
-  "https://authi-fy.vercel.app",
+  "https://authi-fy-1.onrender.com",
   "http://localhost:5173",
 ];
 
