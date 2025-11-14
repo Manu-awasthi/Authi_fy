@@ -15,7 +15,7 @@ The application allows users to sign in securely, access protected routes, and m
 (Add your screenshots inside `/assets/` folder and paste the links here)
 
 ### 🔹 Login Page  
-![Login Page](assets/login.png)
+![Login Page](assets/Screenshot 2025-11-10 173652.png)
 
 ### 🔹 Dashboard (Protected Route)  
 ![Dashboard](assets/dashboard.png)
