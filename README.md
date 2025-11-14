@@ -18,7 +18,7 @@ The application allows users to sign in securely, access protected routes, and m
 ![Login Page](assets/Screenshot 2025-11-10 173652.png)
 
 ### 🔹 Dashboard (Protected Route)  
-![Dashboard](assets/dashboard.png)
+![Dashboard](assets/Screenshot 2025-11-10 173724.png)
 
 
 
