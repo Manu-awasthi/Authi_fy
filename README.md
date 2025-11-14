@@ -65,4 +65,69 @@ The application allows users to sign in securely, access protected routes, and m
 ---
 
 ## 📂 Project Structure  
+Authi_fy/
+│
+├── backend/
+│ ├── config/
+│ ├── controllers/
+│ ├── middleware/
+│ ├── models/
+│ ├── routes/
+│ ├── utils/
+│ └── server.js
+│
+└── frontend/
+├── public/
+├── src/
+│ ├── components/
+│ ├── context/
+│ ├── pages/
+│ └── App.js
+└── package.json
+
+
+---
+
+## 🛠 Installation (Local Setup)
+
+### 1️⃣ Clone repo  
+
+git clone https://github.com/Manu-awasthi/Authi_fy.git
+cd Authi_fy
+
+
+### 2️⃣ Install backend dependencies
+cd backend
+npm install
+
+3️⃣ Install frontend dependencies
+cd ../frontend
+npm install
+
+also make your own env file with your own client ID and client secrets ....
+
+
+Future Enhancements
+🔐 Two-Factor Authentication (2FA)
+
+👮 Admin Dashboard
+
+🧮 Login attempt monitoring
+
+📨 Email Verification
+
+Contributing
+
+Pull requests are welcome.
+For major changes, open an issue first.
+
+
+  
+  ## Author ##
+
+Manu Awasthi
+🔗 GitHub: https://github.com/Manu-awasthi
+
+🔗 LinkedIn: https://linkedin.com/in/manu-awasthi31
+
 
