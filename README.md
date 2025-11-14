@@ -20,13 +20,9 @@ The application allows users to sign in securely, access protected routes, and m
 ### 🔹 Dashboard (Protected Route)  
 ![Dashboard](assets/dashboard.png)
 
-### 🔹 Google / GitHub OAuth Popup  
-![OAuth Flow](assets/oauth.png)
 
-> To add screenshots:  
-> 1. Make a folder: `/assets` in your repo  
-> 2. Upload your PNG/JPG images  
-> 3. Replace the image paths here
+
+
 
 ---
 
